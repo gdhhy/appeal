@@ -121,7 +121,7 @@ public class CheckRecordController {
 
     @ResponseBody
     @RequestMapping(value = "/listCheckRecord", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String listCheckRecord(@RequestParam(value = "affairID", required = false) Integer affairID ) {
+    public String listCheckRecord(@RequestParam(value = "affairID", required = false) Integer affairID) {
         Map<String, Object> param = new HashMap<>();
         param.put("affairID", affairID);
         List<CheckRecord> checkRecord = checkRecordMapper.selectCheckRecord(param);
@@ -141,11 +141,15 @@ public class CheckRecordController {
 
             resultMap.put("success", false);
             resultMap.put("error", files);
+        } else if (fileBucket.getFile() == null) {
+            resultMap.put("success", false);
+            resultMap.put("error", "未发现上传文件");
         } else {
-           logger.debug("Fetching file");
-           logger.debug("fileBucket="+fileBucket);
-           logger.debug("fileBucket.getFile() ="+fileBucket.getFile());
-           logger.debug("fileBucket.getFile().getOriginalFilename()="+fileBucket.getFile().getOriginalFilename());
+            logger.debug("Fetching file");
+            logger.debug("fileBucket=" + fileBucket);
+            logger.debug("fileBucket.getFile() =" + fileBucket.getFile());
+
+            logger.debug("fileBucket.getFile().getOriginalFilename()=" + fileBucket.getFile().getOriginalFilename());
             //MultipartFile multipartFile = fileBucket.getFile();
             Map<String, Object> file = new HashMap<>();
             String server_save_filename = fileBucket.getFile().getOriginalFilename().substring(0, fileBucket.getFile().getOriginalFilename().indexOf("."));
@@ -155,12 +159,12 @@ public class CheckRecordController {
                 //File  file1=
                 FileCopyUtils.copy(fileBucket.getFile().getBytes(), new File(UPLOAD_LOCATION + server_save_filename));
                 //导入
-                InputStream is=new FileInputStream(UPLOAD_LOCATION + server_save_filename);
-                HSSFWorkbook workbook= new HSSFWorkbook(is);
+                InputStream is = new FileInputStream(UPLOAD_LOCATION + server_save_filename);
+                HSSFWorkbook workbook = new HSSFWorkbook(is);
                 HSSFSheet sheet = workbook.getSheet("Sheet1");
-                int succeed=0;
-                for(int startRow=2;startRow<sheet.getLastRowNum();startRow++){
-                    CheckRecord record=new CheckRecord();
+                int succeed = 0;
+                for (int startRow = 2; startRow < sheet.getLastRowNum(); startRow++) {
+                    CheckRecord record = new CheckRecord();
                     record.setCheckMethod(sheet.getRow(startRow).getCell(0).toString());
                     record.setCheckType(sheet.getRow(startRow).getCell(1).toString());
                     record.setName(sheet.getRow(startRow).getCell(4).toString());

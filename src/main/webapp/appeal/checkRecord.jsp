@@ -14,6 +14,8 @@
 <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script src="//ace.jeka.by/assets/js/jquery.validate.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="/jQuery-File-Upload-master/js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
 <script src="/jQuery-File-Upload-master/js/jquery.fileupload.js"></script>
 <!-- The File Upload processing plugin -->
@@ -125,7 +127,7 @@
             submitHandler: function (form) {
                 //console.log(affairForm.serialize());// + "&productImage=" + av atar_ele.get(0).src);
                 //console.log("form:" + form);
-                $.ajax({
+                /*$.ajax({
                     type: "POST",
                     url: "/appeal/saveAffair.jspx",
                     data: affairForm.serialize(),//+ "&productImage=" + av atar_ele.get(0).src,
@@ -150,7 +152,7 @@
                             $("#dialog-edit").dialog("close");
                         }
                     },
-                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                    error: function (response, textStatus) {/!*能够接收404,500等错误*!/
                         $("#errorText").text(response.responseText.substr(0, 1000));
                         $("#dialog-error").removeClass('hide').dialog({
                             modal: true,
@@ -163,7 +165,7 @@
                             }]
                         });
                     }
-                });
+                });*/
             },
             invalidHandler: function (form) {
                 console.log("invalidHandler");
@@ -191,34 +193,7 @@
         var dataArray;
 
         /*保存save*/
-        function uploadSingleFile(file, index) {
-            /*console.log("file type:" + JSON.stringify(file.type));//三个都OK
-            console.log("file size:" + JSON.stringify(file.size));
-            console.log("filename:" + JSON.stringify(file.name));*/
-            var formData = new FormData();
-            formData.append("file", file);
-            $.ajax({
-                url: '/upload/singleUpload.jspx',
-                type: 'POST',
-                cache: false,
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: "json",
-                beforeSend: function () {
-                    //uploading = true;
-                },
-                success: function (result) {
-                    console.log("result.success:" + result.success);
-                    console.log("result.files[0].url:" + result.files[0].url);
-                    dataArray[index].uploaded = result.success;
-                    dataArray[index].qrCodeUrl = result.files[0].url;
-                },
-                error: function (response, textStatus) {
-                    return "";
-                }
-            });
-        }
+
         var url = '/appeal/uploadCheckRecord.jspx',
             uploadButton = $('<button/>')
                 .addClass('btn btn-primary')
@@ -259,8 +234,7 @@
                 }
                 node.appendTo(data.context);
             });
-        }).on('fileuploadprocessalways', function (e, data) {
-            console.log(data.result);
+        }).on('fileuploadprocessalways', function (e, data) {//选中文件
             var index = data.index,
                 file = data.files[index],
                 node = $(data.context.children()[index]);
@@ -274,25 +248,33 @@
                 data.context.find('button').text('上传').prop('disabled', !!data.files.error);
             }
         }).on('fileuploadprogressall', function (e, data) {
+            console.log(" JSON.stringify(data):" + JSON.stringify(data));
+            console.log(" JSON.stringify(e):" + JSON.stringify(e));
             var progress = parseInt(data.loaded / data.total * 100, 10);
             $('#progress .progress-bar').css(
                 'width',
                 progress + '%'
             );
-        }).on('fileuploaddone', function (e, data) {
-            /* console.log(" JSON.stringify(data):" + JSON.stringify(data));
-             console.log(" JSON.stringify(e):" + JSON.stringify(e));*/
-            $.each(data.result.files, function (index, file) {
-                if (file.url) {
-                    var link = $('<a>').attr('target', '_blank').prop('href', file.url);
-                    $(data.context.children()[index]).wrap(link);
-                } else if (file.error) {
-                    var error = $('<span class="text-danger"/>').text(file.error);
-                    $(data.context.children()[index]).append('<br>').append(error);
-                }
-            });
-            //loadJson();
+        }).on('fileuploaddone', function (e, data) {//上传返回
+            /*  console.log(" result:" + JSON.stringify(data.result));
+              console.log(" JSON.stringify(data):" + JSON.stringify(data));
+              console.log(" JSON.stringify(e):" + JSON.stringify(e));*/
+            if (data.result.success) {
+                $.each(data.result.files, function (index, file) {
+                    if (file.url) {
+                        var link = $('<a>').attr('target', '_blank').prop('href', file.url);
+                        $(data.context.children()[index]).wrap(link);
+                    } else if (file.error) {
+                        var error = $('<span class="text-danger"/>').text(file.error);
+                        $(data.context.children()[index]).append('<br>').append(error);
+                    }
+                });
+                //loadJson();
+            } else {
+                showDialog("上传失败", data.result.error);
+            }
         }).on('fileuploadfail', function (e, data) {
+            console.log(" JSON.stringify(data):" + JSON.stringify(data));
             $.each(data.files, function (index) {
                 var error = $('<span class="text-danger"/>').text('File upload failed.');
                 $(data.context.children()[index]).append('<br>').append(error);
@@ -552,7 +534,7 @@
                     <div class="col-xs-8 center-block ">
                         <span class="btn btn-success fileinput-button">
                             <i class="glyphicon glyphicon-plus"></i>
-                            <span>选择盘查excel...</span>
+                            <span>选择excel...</span>
                             <input id="fileupload" type="file" name="file" multiple>
                         </span>
                         <br>

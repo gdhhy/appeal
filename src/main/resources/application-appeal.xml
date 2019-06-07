@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config/>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.9:3310/appeal?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="username" value="user1"/>
+        <property name="password" value="cjdlx"/>
+        <property name="maxIdle" value="10"/>
+        <property name="initialSize" value="5"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.9:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="username" value="user1"/>
+        <property name="password" value="cjdlx"/>
+        <property name="maxIdle" value="50"/>
+        <property name="initialSize" value="2"/>
+    </bean>
+    <bean id="sqlSessionFactory2" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-security.xml"/>
+        <property name="dataSource" ref="securityDS"/>
+    </bean>
+
+    <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory2"/>
+        <property name="mapperInterface" value="com.zcreate.security.dao.UserMapper"/>
+    </bean>
+    <bean id="roleMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory2"/>
+        <property name="mapperInterface" value="com.zcreate.security.dao.RoleMapper"/>
+    </bean>
+
+
+    <bean id="eventMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.zcreate.appeal.dao.AffairMapper"/>
+    </bean>
+    <bean id="checkRecordMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.zcreate.appeal.dao.CheckRecordMapper"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <bean id="fileValidator" class="com.zcreate.upload.FileValidator"/>
+    <bean id="multiFileValidator" class="com.zcreate.upload.MultiFileValidator"/>
+    <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
+
+    <!-- 配置MultipartResolver 用于文件上传 使用spring的CommosMultipartResolver -->
+ <!--   <beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+                p:defaultEncoding="UTF-8"
+                p:maxUploadSize="5400000"
+                p:uploadTempDir="fileUpload/temp">
+    </beans:bean> -->
+    <bean id="configs" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:config.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+</beans>

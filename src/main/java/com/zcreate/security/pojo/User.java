@@ -2,6 +2,7 @@ package com.zcreate.security.pojo;
 
 
 import com.google.gson.JsonElement;
+import net.sf.json.JSONObject;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -87,6 +88,7 @@ public class User implements Serializable, Comparable, UserDetails {
 
     public boolean isAccountNonExpired() {
         System.out.println("expiredDate = " + expiredDate);
+        JSONObject s;
         return true;
         //return expiredDate != null;
     }

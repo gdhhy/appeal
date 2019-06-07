@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.appeal.dao.CheckRecordMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="CheckRecordResult" type="com.zcreate.appeal.pojo.CheckRecord">
+        <result column="recordID" jdbcType="INTEGER" property="recordID"/>
+        <result column="affairID" jdbcType="INTEGER" property="affairID"/>
+        <result column="checkMethod" jdbcType="VARCHAR" property="checkMethod"/>
+        <result column="checkType" jdbcType="VARCHAR" property="checkType"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="idNo" jdbcType="VARCHAR" property="idNo"/>
+        <result column="sex" jdbcType="VARCHAR" property="sex"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="checkTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="checkTime"/>
+        <result column="police" jdbcType="VARCHAR" property="police"/>
+        <result column="policeman" jdbcType="VARCHAR" property="policeman"/>
+        <result column="policeNo" jdbcType="VARCHAR" property="policeNo"/>
+        <result column="filterCause" jdbcType="VARCHAR" property="filterCause"/>
+        <result column="handle" jdbcType="VARCHAR" property="handle"/>
+        <result column="dataValid" jdbcType="VARCHAR" property="dataValid"/>
+        <result column="situation" jdbcType="VARCHAR" property="situation"/>
+        <result column="createUserID" jdbcType="INTEGER" property="createUserID"/>
+        <result column="createTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <select id="getCheckRecord" resultMap="CheckRecordResult">
+       SELECT recordID,affairID,checkMethod,checkType,name,idNo,sex,address,checkTime,police,policeman,policeNo,filterCause,handle,dataValid,situation,createUserID,createTime FROM checkrecord
+       where affairID = #{pojo.affairID:INTEGER}
+    </select>
+    <select id="selectCheckRecord" resultMap="CheckRecordResult">
+        SELECT recordID,affairID,checkMethod,checkType,name,idNo,sex,address,checkTime,police,policeman,policeNo,filterCause,handle,dataValid,situation,createUserID,createTime FROM checkrecord
+        ORDER BY createTime desc
+    </select>
+    <update id="updateCheckRecord">
+        update CheckRecord
+        <set>
+            <if test="pojo.affairID != null">affairID = #{pojo.affairID:VARCHAR},</if>
+            <if test="pojo.checkMethod != null">checkMethod = #{pojo.checkMethod:VARCHAR},</if>
+            <if test="pojo.checkType != null">checkType = #{pojo.checkType:VARCHAR},</if>
+            <if test="pojo.name != null">name = #{pojo.name:VARCHAR},</if>
+            <if test="pojo.idNo != null">idNo = #{pojo.idNo:VARCHAR},</if>
+            <if test="pojo.sex != null">sex = #{pojo.sex:VARCHAR},</if>
+            <if test="pojo.address != null">address = #{pojo.address:VARCHAR},</if>
+            <if test="pojo.checkTime != null">checkTime = #{pojo.checkTime:VARCHAR},</if>
+            <if test="pojo.police != null">police = #{pojo.police:VARCHAR},</if>
+            <if test="pojo.policeman != null">policeman = #{pojo.policeman:VARCHAR},</if>
+            <if test="pojo.policeNo != null">policeNo = #{pojo.policeNo:VARCHAR},</if>
+            <if test="pojo.filterCause != null">filterCause = #{pojo.filterCause:VARCHAR},</if>
+            <if test="pojo.handle != null">handle = #{pojo.handle:VARCHAR},</if>
+            <if test="pojo.dataValid != null">dataValid = #{pojo.dataValid:VARCHAR},</if>
+            <if test="pojo.situation != null">situation = #{pojo.situation:VARCHAR},</if>
+        </set>
+        where affairID = #{pojo.affairID:INTEGER}
+    </update>
+    <insert id="insertCheckRecord" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.affairID">
+        INSERT INTO CheckRecord (affairID,checkMethod,checkType,name,idNo,sex,address,checkTime,police,policeman,policeNo,filterCause,handle,dataValid,situation,createUserID,createTime)
+        VALUES (#{pojo.affairID:VARCHAR}, #{pojo.checkMethod:VARCHAR}, #{pojo.checkType:VARCHAR},
+              #{pojo.name:VARCHAR}, #{pojo.idNo:VARCHAR}, #{pojo.address:VARCHAR}, #{pojo.checkTime:TIMESTAMP}, #{pojo.police:VARCHAR}},
+              #{pojo.policeman:VARCHAR}, #{pojo.policeNo:VARCHAR}, #{pojo.filterCause:VARCHAR}, #{pojo.handle:VARCHAR}, #{pojo.dataValid:VARCHAR}, #{pojo.situation:VARCHAR},
+              #{pojo.createUserID:INTEGER}, #{pojo.createTime:TIMESTAMP})
+    </insert>
+    <delete id="deleteCheckRecord">
+        DELETE FROM CheckRecord
+        WHERE affairID = #{affairID:INTEGER}
+    </delete>
+</mapper>

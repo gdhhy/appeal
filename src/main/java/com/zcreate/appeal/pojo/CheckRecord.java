@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 public class CheckRecord implements Serializable {
     private int recordID;
-    private int eventID;
+    private int affairID;
     private String checkMethod;
     private String checkType;
     private String name;
@@ -31,12 +31,12 @@ public class CheckRecord implements Serializable {
         this.recordID = recordID;
     }
 
-    public int getEventID() {
-        return eventID;
+    public int getAffairID() {
+        return affairID;
     }
 
-    public void setEventID(int eventID) {
-        this.eventID = eventID;
+    public void setAffairID(int affairID) {
+        this.affairID = affairID;
     }
 
     public String getCheckMethod() {

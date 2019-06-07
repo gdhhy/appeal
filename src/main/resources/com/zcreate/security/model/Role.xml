@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.security.dao.RoleMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="UserResult" type="com.zcreate.security.pojo.Role">
+        <result column="roleid" jdbcType="INTEGER" property="roleID"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="roleNo" jdbcType="VARCHAR" property="roleNo"/>
+        <result column="layer" jdbcType="INTEGER" property="layer"/>
+        <result column="parentID" jdbcType="INTEGER" property="parentID"/>
+        <result column="hasChild" jdbcType="BOOLEAN" property="hasChild"/>
+        <result column="allowCount" jdbcType="INTEGER" property="allowCount"/>
+        <result column="note" jdbcType="VARCHAR" property="note"/>
+    </resultMap>
+
+    <select id="getRole" resultMap="UserResult">
+        SELECT roleID,name,roleNo,layer,parentID,hasChild,allowCount,note
+        FROM sys_role
+        <where>
+            <if test="param.name!=null">AND name = #{param.name:VARCHAR}</if>
+            <if test="param.roleID!=null">AND roleID = #{param.roleID:INTEGER}</if>
+        </where>
+        ORDER BY roleID
+    </select>
+    <select id="selectRole" resultMap="UserResult">
+        SELECT roleID, name, roleNo, layer, parentID, hasChild, allowCount, note
+        FROM sys_role
+        ORDER BY roleID
+    </select>
+    <update id="updateRole">
+        update sys_role
+        <set>
+            <if test="pojo.name != null">name = #{pojo.name:VARCHAR},</if>
+            <if test="pojo.roleNo != null">roleNo = #{pojo.roleNo:VARCHAR},</if>
+            <if test="pojo.layer != null">layer = #{pojo.layer:INTEGER},</if>
+            <if test="pojo.parentID != null">parentID = #{pojo.parentID:INTEGER},</if>
+            <if test="pojo.hasChild != null">hasChild = #{pojo.hasChild:BIT},</if>
+            <if test="pojo.allowCount != null">allowCount = #{pojo.allowCount:INTEGER},</if>
+            <if test="pojo.note != null">note = #{pojo.note:VARCHAR},</if>
+        </set>
+        where roleID = #{pojo.roleID:INTEGER}
+    </update>
+    <insert id="insertRole" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.roleID">
+        INSERT INTO sys_role (name, roleNo, layer, parentID, hasChild, allowCount, note)
+        VALUES (#{pojo.name:VARCHAR}, #{pojo.roleNo:VARCHAR}, #{pojo.layer:INTEGER}, #{pojo.parentID:INTEGER},
+                #{pojo.hasChild:BIT}, #{pojo.allowCount:INTEGER}, #{pojo.note:VARCHAR})
+    </insert>
+    <delete id="deleteRole">
+        DELETE
+        FROM sys_role
+        WHERE roleID = #{roleID:INTEGER}
+    </delete>
+</mapper>

@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Controller
 @RequestMapping("/")
@@ -30,6 +32,8 @@ public class LoginController {
     private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     Logger logger = Logger.getLogger(LoginController.class);
+    @Resource
+    private Properties configs;
 
     @RequestMapping(value = "/loginPage", method = RequestMethod.GET)
     public String loginPage(@RequestParam(value = "error", required = false) String error, ModelMap model, HttpServletRequest request) {
@@ -50,8 +54,8 @@ public class LoginController {
             model.addAttribute("errMsg", getErrorMessage(request));
         }
 
-        model.addAttribute("systemTitle", "系统登录");
-        model.addAttribute("systemTitle2", "系统登录");
+        model.addAttribute("systemTitle", configs.getProperty("title"));
+        /*model.addAttribute("systemTitle2", "系统登录");*/
         return "/loginPage";
     }
 

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--<context:annotation-config/>-->
+    <!-- Controller 类注解标识 -->
+    <context:component-scan base-package="com.zcreate.security.controller">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <context:component-scan base-package="com.zcreate.appeal.controller">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--<bean id="negotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        &lt;!&ndash; 扩展名至mimeType的映射,即 /user.json => application/json &ndash;&gt;
+        <property name="favorPathExtension" value="true"/>
+        &lt;!&ndash; 用于开启 /userinfo/123?format=json 的支持 &ndash;&gt;
+        <property name="favorParameter" value="true"/>SF
+        <property name="parameterName" value="format"/>
+        &lt;!&ndash; 是否忽略Accept Header &ndash;&gt;
+        <property name="ignoreAcceptHeader" value="false"/>
+        <property name="mediaTypes"> &lt;!&ndash;扩展名到MIME的映射；favorPathExtension, favorParameter 是true时起作用  &ndash;&gt;
+            <value>
+                do=application/json
+                jsn=application/json
+                htm=text/html
+            </value>
+        </property>
+        &lt;!&ndash; 默认的content type &ndash;&gt;
+        <property name="defaultContentType" value="text/html"/>
+    </bean>-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- <mvc:message-converters>
+                 <ref bean="jsonConverter"/>
+                 <ref bean="stringHttpMessageConverter"/>
+             </mvc:message-converters>-->
+            <bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"/>
+            </bean>
+            <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>text/plain;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
+    <!--<mvc:annotation-driven conversion-service="conversionService" />
+    <bean id="dateFormatter" class="org.springframework.format.datetime.DateFormatter" c:_0="yyyy-MM-dd HH:mm" />   &lt;!&ndash; 声明formatter的bean，提供给下面的MyFormatterRegistrar &ndash;&gt;
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="formatterRegistrars">  &lt;!&ndash; 这里可以配置converters，formatters，还可以配置formatterRegistrars &ndash;&gt;
+            <set>
+                <bean class="org.springframework.format.datetime.DateFormatterRegistrar" p:dateFormatter-ref="dateFormatter"  />
+            </set>
+        </property>
+    </bean>-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>

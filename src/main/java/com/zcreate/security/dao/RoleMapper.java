@@ -12,7 +12,9 @@ import java.util.Map;
  */
 //@Mapper
 public interface RoleMapper {
-    List<Role> getRole(@Param("param") Map<String, Object> param);
+    Role getRole(@Param("param") Map<String, Object> param);
+
+    List<Role> selectRole(@Param("param") Map<String, Object> param);
 
     int insertRole(@Param("pojo") Role role);
 

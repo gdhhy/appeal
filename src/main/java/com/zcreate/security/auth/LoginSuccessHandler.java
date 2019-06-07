@@ -1,8 +1,10 @@
 package com.zcreate.security.auth;
 
+import com.zcreate.security.dao.UserMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -13,11 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.zcreate.security.pojo.User;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class LoginSuccessHandler implements AuthenticationSuccessHandler, InitializingBean {
@@ -29,6 +35,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler, Initia
     private boolean forwardToDestination = false;
 
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    @Autowired
+    private UserMapper userMapper;
 
 
     /* (non-Javadoc)
@@ -53,14 +61,20 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler, Initia
         }
     }
 
-    @Transactional(  propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
     public void saveLoginInfo(HttpServletRequest request, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         try {
             String ip = this.getIpAddress(request);
             user.setLastLoginTime(new Date());
             user.setLastLoginIP(ip);
-          //  this.userDao.saveUser(user);
+
+            Map<String, Object> param = new HashMap<>();
+            param.put("loginname", authentication.getName());
+            User dbuser = userMapper.getUser(param);
+            user.setSucceedLogin(dbuser.getSucceedLogin() + 1);
+            user.setFailureLogin(0);
+            userMapper.updateUser(user);
         } catch (DataAccessException e) {
             if (logger.isWarnEnabled()) {
                 logger.error("无法更新用户登录信息至数据库");

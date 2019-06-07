@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.appeal.dao.AffairMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="AffairResult" type="com.zcreate.appeal.pojo.Affair">
+        <result column="affairID" jdbcType="INTEGER" property="affairID"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="place" jdbcType="VARCHAR" property="place"/>
+        <result column="togetherTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="togetherTime"/>
+        <result column="appealDepart" jdbcType="VARCHAR" property="appealDepart"/>
+        <result column="receptionDepart" jdbcType="VARCHAR" property="receptionDepart"/>
+        <result column="police" jdbcType="VARCHAR" property="police"/>
+        <result column="general" jdbcType="VARCHAR" property="general"/>
+        <result column="createUserID" jdbcType="INTEGER" property="createUserID"/>
+        <!--<result column="createTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="createTime"/>-->
+    </resultMap>
+
+    <select id="getAffair"  parameterType="java.util.Map"  resultMap="AffairResult">
+        SELECT affairID,name,place,togetherTime,appealDepart,receptionDepart,police,general,createUserID,createTime FROM affair
+       where affairID = #{param.affairID:INTEGER}
+    </select>
+    <select id="selectAffair" resultMap="AffairResult">
+        SELECT affairID,name,place,togetherTime,appealDepart,receptionDepart,police,general,createUserID,createTime FROM affair
+        ORDER BY createTime desc
+    </select>
+    <update id="updateAffair">
+        update Affair
+        <set>
+            <if test="pojo.name != null">name = #{pojo.name:VARCHAR},</if>
+            <if test="pojo.place != null">place = #{pojo.place:VARCHAR},</if>
+            <if test="pojo.togetherTime != null">togetherTime = #{pojo.togetherTime:TIMESTAMP},</if>
+            <if test="pojo.appealDepart != null">appealDepart = #{pojo.appealDepart:VARCHAR},</if>
+            <if test="pojo.receptionDepart != null">receptionDepart = #{pojo.receptionDepart:VARCHAR},</if>
+            <if test="pojo.police != null">police = #{pojo.police:VARCHAR},</if>
+            <if test="pojo.general != null">general = #{pojo.general:VARCHAR},</if>
+        </set>
+        where affairID = #{pojo.affairID:INTEGER}
+    </update>
+    <insert id="insertAffair" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.affairID">
+        INSERT INTO Affair (name,place,togetherTime,appealDepart,receptionDepart,police,general,createUserID)
+        VALUES (#{pojo.name:VARCHAR}, #{pojo.place:VARCHAR}, #{pojo.togetherTime:TIMESTAMP}, #{pojo.appealDepart:VARCHAR},
+         #{pojo.receptionDepart:VARCHAR}, #{pojo.police:VARCHAR}, #{pojo.general:VARCHAR}, #{pojo.createUserID:INTEGER} )
+    </insert>
+    <delete id="deleteAffair" parameterType="int">
+        DELETE FROM Affair
+        WHERE affairID = #{affairID:INTEGER}
+    </delete>
+</mapper>

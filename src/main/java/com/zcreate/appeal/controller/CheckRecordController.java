@@ -7,6 +7,9 @@ import com.zcreate.appeal.dao.AffairMapper;
 import com.zcreate.appeal.dao.CheckRecordMapper;
 import com.zcreate.appeal.pojo.Affair;
 import com.zcreate.appeal.pojo.CheckRecord;
+import com.zcreate.upload.FileValidator;
+import com.zcreate.upload.MultiFileValidator;
+import com.zcreate.upload.pojo.FileBucket;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
-import com.zcreate.upload.pojo.FileBucket;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +39,8 @@ public class CheckRecordController {
 
     private static String relative_directory = "upload";
     private static String UPLOAD_LOCATION = DeployRunning.getDir() + relative_directory + File.separator;
+    @Autowired
+    private HttpServletRequest request;
 
     @Autowired
     private AffairMapper affairMapper;
@@ -42,12 +49,21 @@ public class CheckRecordController {
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    //private static String UPLOAD_LOCATION = DeployRunning.getDir() + imageDir + File.separator;
+    @Autowired
+    private FileValidator fileValidator;
 
-    /*
-     public void setImageDir(String imageDir) {
-        this.imageDir = imageDir;
-    }*/
+    @Autowired
+    private MultiFileValidator multiFileValidator;
+
+    @InitBinder("fileBucket")
+    protected void initBinderFileBucket(WebDataBinder binder) {
+        binder.setValidator(fileValidator);
+    }
+
+    @InitBinder("multiFileBucket")
+    protected void initBinderMultiFileBucket(WebDataBinder binder) {
+        binder.setValidator(multiFileValidator);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/showAffair", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -128,6 +144,25 @@ public class CheckRecordController {
         return returnJson(checkRecord);
     }
 
+    @RequestMapping("fileUpload")
+    public String fileUpload(@RequestParam("file") MultipartFile file) {
+        // 判断文件是否为空
+        if (!file.isEmpty()) {
+            try {
+                // 文件保存路径
+                String filePath = request.getSession().getServletContext().getRealPath("/") + "upload/"
+                        + file.getOriginalFilename();
+                // 转存文件
+                System.out.println("filePath = " + filePath);
+                file.transferTo(new File(filePath));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // 重定向
+        return "redirect:/list.html";
+    }
+
     @ResponseBody
     @RequestMapping(value = "/uploadCheckRecord", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String uploadCheckRecord(@Valid FileBucket fileBucket, BindingResult result) {
@@ -156,12 +191,15 @@ public class CheckRecordController {
             server_save_filename += "_" + (new Date()).getTime() + fileBucket.getFile().getOriginalFilename().substring(fileBucket.getFile().getOriginalFilename().indexOf((".")));
             logger.debug("server_save_filename:" + server_save_filename);
             try {
+                File dir = new File(UPLOAD_LOCATION);
+                if (!dir.isDirectory()) dir.mkdirs();
                 //File  file1=
                 FileCopyUtils.copy(fileBucket.getFile().getBytes(), new File(UPLOAD_LOCATION + server_save_filename));
                 //导入
                 InputStream is = new FileInputStream(UPLOAD_LOCATION + server_save_filename);
                 HSSFWorkbook workbook = new HSSFWorkbook(is);
-                HSSFSheet sheet = workbook.getSheet("Sheet1");
+                HSSFSheet sheet = workbook.getSheetAt(0);//workbook.getSheet("天河分局人员比对详细表");
+                logger.debug("sheet.getLastRowNum()=" + sheet.getLastRowNum());
                 int succeed = 0;
                 for (int startRow = 2; startRow < sheet.getLastRowNum(); startRow++) {
                     CheckRecord record = new CheckRecord();
@@ -201,4 +239,5 @@ public class CheckRecordController {
 
         return gson.toJson(resultMap);
     }
+
 }

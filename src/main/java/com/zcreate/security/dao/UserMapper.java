@@ -12,7 +12,8 @@ import java.util.Map;
  */
 //@Mapper
 public interface UserMapper {
-    List<User> getUser(@Param("param") Map<String, Object> param);
+    User getUser(@Param("param") Map<String, Object> param);
+
     List<User> selectUser(@Param("param") Map<String, Object> param);
 
     int insertUser(@Param("pojo") User user);

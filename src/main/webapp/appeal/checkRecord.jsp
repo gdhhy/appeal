@@ -217,14 +217,14 @@
             dataType: 'json',
             autoUpload: false,
             acceptFileTypes: /(\.|\/)(xls|xlsx)$/i,
-            maxFileSize: 999000,
+            maxFileSize: 999000//,
             // Enable image resizing, except for Android and Opera,
             // which actually support image resizing, but fail to
             // send Blob objects via XHR requests:
-            disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
-            previewMaxWidth: 100,
-            previewMaxHeight: 100,
-            previewCrop: true
+            /* disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
+             previewMaxWidth: 100,
+             previewMaxHeight: 100,
+             previewCrop: true*/
         }).on('fileuploadadd', function (e, data) {
             data.context = $('<div/>').appendTo('#files');
             $.each(data.files, function (index, file) {
@@ -260,6 +260,7 @@
               console.log(" JSON.stringify(data):" + JSON.stringify(data));
               console.log(" JSON.stringify(e):" + JSON.stringify(e));*/
             if (data.result.success) {
+
                 $.each(data.result.files, function (index, file) {
                     if (file.url) {
                         var link = $('<a>').attr('target', '_blank').prop('href', file.url);
@@ -271,7 +272,14 @@
                 });
                 //loadJson();
             } else {
-                showDialog("上传失败", data.result.error);
+                if (data.result.files.length === 1)
+                    showDialog("上传失败", data.result.files[0].error);
+                else {
+                    var errorText = '';
+                    for (var i = 0; i < data.result.files.length; i++)
+                        errorText += data.result.files[i].error + "\n";
+                    showDialog("上传失败", errorText);
+                }
             }
         }).on('fileuploadfail', function (e, data) {
             console.log(" JSON.stringify(data):" + JSON.stringify(data));
@@ -521,7 +529,7 @@
         </p>
     </div>
     <div id="dialog-edit" class="hide">
-        <form class="form-horizontal" role="form" id="affairForm">
+        <form class="form-horizontal" role="form" id="affairForm" enctype="multipart/form-data">
             <div class="col-xs-11">
                 <input type="hidden" id="form-affairID" name="affairID"/>
 

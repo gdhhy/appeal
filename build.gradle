@@ -1,0 +1,84 @@
+group 'com.zcreate'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'war'
+
+sourceCompatibility = 1.8
+repositories {
+    flatDir {
+        // 先看下build.gradle文件所在目录下的 libs目录中有没有
+        dirs 'lib'
+    } 
+    maven {
+        //如果目录中木有，则找url对应的maven仓库，下面是阿里的maven仓库，速度杠杆的。
+        url "http://maven.aliyun.com/nexus/content/groups/public/"
+    }
+    maven { url 'https://jitpack.io' }
+    mavenCentral()
+}
+/*task run(type: JavaExec, dependsOn: classes) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.zcreate.lottery.ad.WebScan'
+}*/
+task copyJars(type: Copy) {
+    from configurations.runtime
+    into 'lib' // 目标位置
+}
+dependencies {
+    compile 'org.mybatis:mybatis:3.4.2', 'log4j:log4j:1.2.17', 'jstl:jstl:1.2', 'javax.servlet:javax.servlet-api:3.1.0'
+    compile group: 'org.springframework', name: 'spring-context', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '4.3.7.RELEASE'
+
+    compile group: 'org.springframework', name: 'spring-beans', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-web', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-webmvc', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework', name: 'spring-test', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-core', version: '4.2.2.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-web', version: '4.2.2.RELEASE'
+    compile group: 'org.springframework.security', name: 'spring-security-config', version: '4.2.2.RELEASE'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.3'
+
+    compile group: 'org.apache.poi', name: 'poi', version: '4.0.1'
+
+    //compile group: 'javax.sql', name: 'rowset', version: '1.0.1'
+    //compile files('lib/jdbc-rowset-1.0.jar') 
+    compile group: 'org.mybatis', name: 'mybatis-spring', version: '1.3.1'
+
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+//    compile group: 'org.postgresql', name: 'postgresql', version: '42.0.0'
+
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
+
+    compile group: 'javax.validation', name: 'validation-api', version: '1.1.0.Final'
+    //微信
+    compile group: 'com.github.binarywang', name: 'weixin-java-mp', version: '2.9.0'
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.6'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'com.google.guava', name: 'guava', version: '20.0'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.24'
+    compile group: 'org.aspectj', name: 'aspectjrt', version: '1.8.9'
+    compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.8.9'
+    //compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.3'
+
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4',classifier:'jdk15'
+    compile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+    
+    runtime('com.fasterxml.jackson.core:jackson-core:2.9.3',  
+            'com.fasterxml.jackson.core:jackson-databind:2.9.3')
+    runtime group: 'mysql', name: 'mysql-connector-java', version: '8.0.11'
+
+    /*testCompile group: 'junit', name: 'junit', version: '4.11'*/
+}
+/*tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}*/
+ext {
+    // java文件编码方式设置为utf-8
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+    //sourceCompatibility = 1.6
+}

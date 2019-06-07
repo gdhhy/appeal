@@ -51,10 +51,10 @@ public class Test {
         System.setProperty("LOG_DIR", "~");
 
         AbstractXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-        UserDao userDao = (UserDao) context.getBean("userDao");
+        //UserDao userDao = (UserDao) context.getBean("userDao");
         User u = new User();
         u.setUsername("dongtian");
         u.setPassword("5463245624");
-        userDao.saveUser(u);
+        //userDao.saveUser(u);
     }
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.zcreate.security.dao.RoleMapper">
     <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
-    <resultMap id="UserResult" type="com.zcreate.security.pojo.Role">
+    <resultMap id="RoleResult" type="com.zcreate.security.pojo.Role">
         <result column="roleid" jdbcType="INTEGER" property="roleID"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="roleNo" jdbcType="VARCHAR" property="roleNo"/>
@@ -14,7 +14,7 @@
         <result column="note" jdbcType="VARCHAR" property="note"/>
     </resultMap>
 
-    <select id="getRole" resultMap="UserResult">
+    <select id="getRole" resultMap="RoleResult">
         SELECT roleID,name,roleNo,layer,parentID,hasChild,allowCount,note
         FROM sys_role
         <where>
@@ -23,9 +23,12 @@
         </where>
         ORDER BY roleID
     </select>
-    <select id="selectRole" resultMap="UserResult">
+    <select id="selectRole" resultMap="RoleResult">
         SELECT roleID, name, roleNo, layer, parentID, hasChild, allowCount, note
         FROM sys_role
+        <if test="param.userID!=null">
+            where roleID in (select roleID from Sys_UserRole where userid = #{param.userID:INTEGER})
+        </if>
         ORDER BY roleID
     </select>
     <update id="updateRole">
@@ -49,6 +52,13 @@
     <delete id="deleteRole">
         DELETE
         FROM sys_role
-        WHERE roleID = #{roleID:INTEGER}
+        WHERE roleID = #{param.roleID:INTEGER}
     </delete>
+    <!--
+        <select id="selectRoleByUserID" resultMap="RoleResult">
+            SELECT roleID, name, roleNo, layer, parentID, hasChild, allowCount, note
+            FROM sys_role
+
+            ORDER BY roleID
+        </select>-->
 </mapper>

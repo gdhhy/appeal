@@ -17,7 +17,7 @@
         <intercept-url pattern="/admin/index.jspx" access="permitAll"/>-->
         <intercept-url pattern="/admin/upload/*.jspx" access="hasRole('ADMIN')"/>
         <intercept-url pattern="/appeal/*.jspx" access="hasRole('ADMIN')"/>
-        <intercept-url pattern="/admin/*.jspx" access="hasRole('ADMIN')"/>
+        <!--<intercept-url pattern="/admin/*.jspx" access="hasRole('ADMIN')"/>-->
         <!--<intercept-url pattern="/remark/*.jspx" access="hasRole('ADMIN')"/>-->
         <intercept-url pattern="/dba*" access="hasRole('ADMIN') and hasRole('DBA')"/>
         <!-- authentication-success-forward-url="/ace/index.html"-->

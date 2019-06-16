@@ -21,4 +21,8 @@ public interface UserMapper {
     int updateUser(@Param("pojo") User user);
 
     int deleteUser(@Param("userID") int userID);
+
+  /*  int setUserRole(@Param("param") List<Map<String, Object>> param);
+
+    int deleteUserRole(@Param("userID") int userID);*/
 }

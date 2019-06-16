@@ -15,10 +15,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -35,6 +37,11 @@ public class LoginController {
     @Resource
     private Properties configs;
 
+    @RequestMapping(value = "/username", method = RequestMethod.GET)
+    @ResponseBody
+    public String currentUserName(Principal principal) {
+        return principal.getName();
+    }
     @RequestMapping(value = "/loginPage", method = RequestMethod.GET)
     public String loginPage(@RequestParam(value = "error", required = false) String error, ModelMap model, HttpServletRequest request) {
 
@@ -95,6 +102,7 @@ public class LoginController {
     }
     @RequestMapping(value = "/menu", method = RequestMethod.GET)
     public String menu(ModelMap model) {
+        model.addAttribute("user", getPrincipal());
         logger.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
 

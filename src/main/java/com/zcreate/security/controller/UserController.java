@@ -12,13 +12,11 @@ import org.apache.ibatis.ognl.OgnlParser;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 @Controller
 @RequestMapping("/rbac")
@@ -60,8 +58,9 @@ public class UserController {
     }
 
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/saveUser", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
-    public String saveUser(@ModelAttribute("user") User user) {//
+    public String saveUser(@ModelAttribute("user") User user) {
         System.out.println("user = " + user);
         Map<String, Object> map = new HashMap<>();
         int result;
@@ -70,6 +69,18 @@ public class UserController {
         if (Ognl.isNotEmpty(user.getPassword())) {
             user.setPassword(Hmac.sha1(user.getPassword().getBytes(), configs.getProperty("application_name").getBytes()));
         }
+
+       /* userMapper.deleteUserRole(user.getUserID());
+        if (user.getRoleIDs().length > 0) {
+            List<Map<String, Object>> param = new ArrayList<>();
+            for (int roleID : user.getRoleIDs()) {
+                Map<String, Object> userRole = new HashMap<>();
+                userRole.put("userID", user.getUserID());
+                userRole.put("roleID", roleID);
+                param.add(userRole);
+            }
+            userMapper.setUserRole(param);
+        }*/
 
         if (user.getUserID() != null)
             result = userMapper.updateUser(user);
@@ -95,8 +106,9 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/listRole", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String listRole( ) {
+    public String listRole(@RequestParam(value = "userID", required = false) Integer userID) {
         Map<String, Object> param = new HashMap<>();
+        param.put("userID", userID);
         List<Role> role = roleMapper.selectRole(param);
 
         Map<String, Object> result = new HashMap<>();
@@ -109,7 +121,7 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/showRole", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String showRole(@RequestParam(value = "roleID", required = false) Integer roleID) {
+    public String showRole(@RequestParam(value = "roleID") Integer roleID) {
         Map<String, Object> param = new HashMap<>();
         param.put("roleID", roleID);
         Role role = roleMapper.getRole(param);
@@ -139,7 +151,9 @@ public class UserController {
     @ResponseBody
     @RequestMapping(value = "/deleteRole", method = RequestMethod.POST)
     public String deleteRole(@RequestParam("roleID") int roleID) {
-        int result = roleMapper.deleteRole(roleID);//如果返回-1, 相加就是0
+        Map<String, Object> param = new HashMap<>();
+        param.put("roleID", roleID);
+        int result = roleMapper.deleteRole(param);//如果返回-1, 相加就是0
 
         Map<String, Object> map = new HashMap<>();
         map.put("succeed", result > 0);

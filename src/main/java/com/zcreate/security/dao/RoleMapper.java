@@ -16,9 +16,12 @@ public interface RoleMapper {
 
     List<Role> selectRole(@Param("param") Map<String, Object> param);
 
+    /*List<Role> selectRoleByUserID(@Param("userID") int userID);*/
+
     int insertRole(@Param("pojo") Role role);
 
     int updateRole(@Param("pojo") Role role);
 
-    int deleteRole(@Param("roleID ") int roleID);
+    //int deleteRole(@Param("roleID ") int roleID);
+    int deleteRole(@Param("param") Map<String, Object> param);
 }

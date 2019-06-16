@@ -30,6 +30,7 @@
                     {"data": "userID"},
                     {"data": "loginName", "sClass": "center"},
                     {"data": "name", "sClass": "center", "defaultContent": ""},
+                    {"data": "roles", "sClass": "center", "defaultContent": ""},
                     {"data": "createDate", "sClass": "center"},
                     {"data": "lastLoginTime", "sClass": "center", "defaultContent": ""},
                     {"data": "failureLogin", "sClass": "center", "defaultContent": ""},
@@ -42,16 +43,15 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {
-                        "searchable": true, "orderable": false, title: '登录名', className: 'text-center', "targets": 1
-                    },
+                    {"searchable": true, "orderable": false, title: '登录名', className: 'text-center', "targets": 1},
                     {"searchable": true, "orderable": false, title: '用户姓名', className: 'text-center', "targets": 2},
-                    {"searchable": false, "orderable": false, title: '创建时间', className: 'text-center', "targets": 3},
-                    {"searchable": true, "orderable": false, title: '最后登录时间', className: 'text-center', "targets": 4},
-                    {"searchable": false, "orderable": false, title: '连续失败次数', className: 'text-center', "targets": 5},
-                    {"searchable": true, "orderable": false, title: '累计登录次数', className: 'text-center', "targets": 6},
+                    {"searchable": true, "orderable": false, title: '角色', className: 'text-center', "targets": 3},
+                    {"searchable": false, "orderable": false, title: '创建时间', className: 'text-center', "targets": 4},
+                    {"searchable": true, "orderable": false, title: '最后登录时间', className: 'text-center', "targets": 5},
+                    {"searchable": false, "orderable": false, title: '连续失败次数', className: 'text-center', "targets": 6},
+                    {"searchable": true, "orderable": false, title: '累计登录次数', className: 'text-center', "targets": 7},
                     {
-                        'targets': 7, 'searchable': false, 'orderable': false, width: 60, data: 'userID',
+                        'targets': 8, 'searchable': false, 'orderable': false, width: 60, data: 'userID',
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="green" href="#" data-userID="{0}">'.format(data) +
@@ -73,11 +73,6 @@
                     style: 'single'
                 }
             });
-        myTable.on('order.dt search.dt', function () {
-            myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
-                cell.innerHTML = i + 1;
-            });
-        }).draw();
         myTable.on('draw', function () {
             $('a.green').on('click', function (e) {
                 e.preventDefault();
@@ -136,6 +131,7 @@
                                 buttons: [{
                                     text: "确定", "class": "btn btn-primary btn-xs", click: function () {
                                         $(this).dialog("close");
+                                        myTable.ajax.reload();
                                     }
                                 }]
                             });
@@ -253,24 +249,34 @@
 
         function showUserDialog(userID) {
             //userForm[0].reset();
+            $("#form-roles option").each(function () {
+                $(this).removeAttr("selected");
+            });
             if (userID != null) {
                 // var htmlobj = $.ajax({url: "rbac/showUser.jspx?userID=" + userID, async: false});
                 $.getJSON("/rbac/showUser.jspx?userID=" + userID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     $("#form-name").val(result["name"]);
                     $("#form-loginName").val(result["loginName"]);
-                    $("#form-roleID").get(0).selectedIndex = result["groupID"];//OK
-                    //$("#form-roleID option[value='"+result['groupID']+"']").attr("selected", true); //OK
-                    //$("#form-roleID").val(result['groupID']);//OK
+                    //$("#form-roles").get(0).selectedIndex = result["roles"];//OK
+                    var roles = result["roles"].split(",");
+
+                    for (var i = 0; i < roles.length; i++)
+                        $("#form-roles option[value='" + roles[i] + "']").attr("selected", "selected");
+
+                    $("#form-roles").trigger("chosen:updated");
                 });
                 $("#form-userID").val(userID);
-            } else {  //用了reset(),就不用执行
-                $("input[id^='form-'],#productImage").val("");
             }
-            /*$("#form-name").val(user["name"]);
-            console.log("user:"+user.get("loginName"));
-            console.log("user:"+user.attr("data-loginName"));
-            $("#form-loginName").val(user.attr("data-loginName"));*/
 
+            /*  $.getJSON("/rbac/listRole.jspx", function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
+                  if (result.iTotalRecords > 0) {
+                      $.each(result.data, function (n, value) {
+                          console.log("value.roleID:" + '<option value="{0}">{1}</option>'.format(value.roleNo, value.roleNo));
+                          $('#form-roleID').append('<option value="{0}">{1}</option>'.format(value.roleNo, value.roleNo));
+                      });
+                      $('#form-roleID').val("");
+                  }
+              });*/
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 450,
@@ -293,6 +299,7 @@
                         "class": "btn btn-minier",
                         click: function () {
                             $(this).dialog("close");
+                            //$('.chosen-select').destroy().init()
                         }
                     }
                 ]
@@ -304,6 +311,28 @@
             e.preventDefault();
             showUserDialog(null);
         });
+
+        $('.chosen-select').chosen({allow_single_deselect: true, no_results_text: "未找到此选项!"});
+        //resize the chosen on window resize
+
+        $(window)
+            .off('resize.chosen')
+            .on('resize.chosen', function () {
+                $('.chosen-select').each(function () {
+                    var $this = $(this);
+                    $this.next().css({'width': 190});
+                })
+            }).trigger('resize.chosen');
+        //resize chosen on sidebar collapse/expand
+        $(document).on('settings.ace.chosen', function (e, event_name, event_val) {
+            console.log("settings.ace.chosen");
+            if (event_name !== 'sidebar_collapsed') return;
+            $('.chosen-select').each(function () {
+                var $this = $(this);
+                $this.next().css({'width': 190});
+            })
+        });
+
     })
 </script>
 <!-- #section:basics/content.breadcrumbs -->
@@ -367,72 +396,74 @@
     </div>
     <div id="dialog-edit" class="hide">
         <form class="form-horizontal" role="form" id="userForm">
-            <div class="col-xs-11">
-                <input type="hidden" id="form-userID" name="userID"/>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right" for="form-name">登录名 </label>
+            <div id="container">
+                <div class="col-xs-11">
+                    <input type="hidden" id="form-userID" name="userID"/>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-name">登录名 </label>
 
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="text" id="form-loginName" name="loginName" placeholder="登录名" class="col-xs-10 col-sm-12"/>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="text" id="form-loginName" name="loginName" placeholder="登录名" class="col-xs-10 col-sm-12"/>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right" for="form-name">用户姓名</label>
-                    <div class="col-sm-7">
-                        <!-- #section:plugins/date-time.datepicker -->
-                        <div class="input-group">
-                            <input type="text" class="form-control col-xs-10 col-sm-12" name="name" id="form-name"/>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-name">用户姓名</label>
+                        <div class="col-sm-7">
+                            <!-- #section:plugins/date-time.datepicker -->
+                            <div class="input-group">
+                                <input type="text" class="form-control col-xs-10 col-sm-12" name="name" id="form-name"/>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right" for="form-password">登录密码 </label>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-password">登录密码 </label>
 
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="password" id="form-password" placeholder="输入密码" autocomplete="false" name="password" class="col-xs-10 col-sm-12"/>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="password" id="form-password" placeholder="输入密码" autocomplete="false" name="password" class="col-xs-10 col-sm-12"/>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right" for="form-pwdretry">密码确认 </label>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-pwdretry">密码确认 </label>
 
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <input type="password" id="form-pwdretry" placeholder="再次确认" autocomplete="false" name="pwdretry" class="col-xs-10 col-sm-12"/>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input type="password" id="form-pwdretry" placeholder="再次确认" autocomplete="false" name="pwdretry" class="col-xs-10 col-sm-12"/>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="form-roleID" class="col-sm-3 control-label no-padding-right">角色</label>
-
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <select class="chosen-select" id="form-roleID" data-placeholder="选择角色" name="roleID">
-                                <option value=""></option>
-                                <option value="1">系统管理员</option>
-                                <option value="2">查询用户</option>
-                            </select>
+                    <div class="form-group">
+                        <label for="form-roles" class="col-sm-3 control-label no-padding-right">角色</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select class="chosen-select" id="form-roles" data-placeholder="选择角色" name="roles" multiple>
+                                    <option value=""></option>
+                                    <option value="ADMIN">管理员</option>
+                                    <option value="USER">普通用户</option>
+                                    <option value="DEVELOP">系统开发</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="form-groupID" class="col-sm-3 control-label no-padding-right">部门</label>
+                    <%--<div class="form-group">
+                        <label for="form-groupID" class="col-sm-3 control-label no-padding-right">部门</label>
 
-                    <div class="col-sm-9">
-                        <div class="input-group">
-                            <select class="chosen-select" id="form-groupID" data-placeholder="选择部门" name="groupID">
-                                <option value=""></option>
-                                <option value="1">营销部</option>
-                                <option value="2">技术部</option>
-                            </select>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select class="chosen-select" id="form-groupID" data-placeholder="选择部门" name="groupID">
+                                    <option value=""></option>
+                                    <option value="1">营销部</option>
+                                    <option value="2">技术部</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
+                    </div>--%>
+
+
                 </div>
-
-
             </div>
         </form>
     </div>

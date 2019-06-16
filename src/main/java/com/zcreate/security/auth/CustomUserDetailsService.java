@@ -45,22 +45,24 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.debug("User.isAccountNonExpired(): " + user.get(0).isAccountNonExpired());
         logger.debug("User.isAccountNonLocked(): " + user.get(0).isAccountNonLocked());
         logger.debug("User.isCredentialsNonExpired(): " + user.get(0).isCredentialsNonExpired());*/
-        return user;
-     /*   return new org.springframework.security.core.userdetails.User(user.get(0).getUsername(), user.get(0).getPassword(),
-                user.get(0).isEnabled(), true, true, true,
-                getGrantedAuthorities(user.get(0)));*/
+        //return user;
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
+                user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(),
+                getGrantedAuthorities(user));
     }
 
 
     private List<GrantedAuthority> getGrantedAuthorities(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-
+        String[] roles = user.getRoles().split(",");
+        for (String role : roles)
+            authorities.add(new SimpleGrantedAuthority(role));
      /*   for (UserProfile userProfile : user.getUserProfiles()) {
             System.out.println("UserProfile : " + userProfile);
             authorities.add(new SimpleGrantedAuthority("ROLE_" + userProfile.getType()));
         }*/
-        authorities.add(new SimpleGrantedAuthority("ADMIN"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+      /*  authorities.add(new SimpleGrantedAuthority("ADMIN"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));*/
         logger.debug("authorities :" + authorities);
         return authorities;
     }

@@ -7,7 +7,7 @@
     <context:annotation-config/>
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://192.168.1.9:3310/appeal?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="url" value="jdbc:mysql://192.168.176.1:3310/appeal?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
         <property name="username" value="user1"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="10"/>
@@ -19,7 +19,7 @@
     </bean>
     <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://192.168.1.9:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="url" value="jdbc:mysql://192.168.176.1:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
         <property name="username" value="user1"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="50"/>

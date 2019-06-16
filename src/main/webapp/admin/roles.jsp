@@ -358,11 +358,11 @@
             <div class="col-xs-11">
                 <input type="hidden" id="form-roleID" name="roleID"/>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label no-padding-right" for="form-roleName">角色名 </label>
+                    <label class="col-sm-3 control-label no-padding-right" for="form-name">角色名 </label>
 
                     <div class="col-sm-9">
                         <div class="input-group">
-                            <input type="text" id="form-roleName" name="name" placeholder="角色名" class="col-xs-10 col-sm-12"/>
+                            <input type="text" id="form-name" name="name" placeholder="角色名" class="col-xs-10 col-sm-12"/>
                         </div>
                     </div>
                 </div>

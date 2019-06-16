@@ -48,6 +48,7 @@ public class User implements Serializable, Comparable, UserDetails {
     private Date createDate;
     private String note;
     private Integer groupID;
+    private String roles;
     private Integer orderID;
     private Date expiredDate;
 
@@ -108,7 +109,13 @@ public class User implements Serializable, Comparable, UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        String[] roleArr = roles.split(",");
+
+        for (String role : roleArr) {
+            System.out.println("role = " + role);
+            authorities.add(new SimpleGrantedAuthority(role));
+        }
+        //authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return authorities;
     }
 
@@ -237,8 +244,16 @@ public class User implements Serializable, Comparable, UserDetails {
         this.lockedLoginIP = lockedLoginIP;
     }
 
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
     public String toString() {
-        return "User [id=" + userID + ", loginName=" + loginName + ", groupID=" + groupID
+        return "User [id=" + userID + ", loginName=" + loginName + ", groupID=" + groupID + ", roles=" + roles
                 + ", orderID=" + orderID + "]";
     }
 
